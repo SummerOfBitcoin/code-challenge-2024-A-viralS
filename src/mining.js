@@ -51,8 +51,11 @@ function mineBlock(transactions, difficultyTarget) {
       console.log(`Trying nonce: ${nonce}`);
     }
   }
+console.log('merkleRoot:', merkleRoot);
+const txids = transactions.map(tx => tx.vin.map(input => input.txid)).flat();
 
-  return { blockHeader, coinbaseTx, serializedTransactions, nonce, merkleRoot };
+return { blockHeader, coinbaseTx, txids, nonce, merkleRoot };
+
 }
 
 module.exports = { mineBlock };

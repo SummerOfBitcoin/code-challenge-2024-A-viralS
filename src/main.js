@@ -29,10 +29,10 @@ function main() {
  
   // Mine the block with valid transactions
   const difficultyTarget = '0000ffff00000000000000000000000000000000000000000000000000000000';
-  const { blockHeader, coinbaseTx, serializedTransactions, nonce } = mineBlock(validTransactions, difficultyTarget);
+  const { blockHeader, coinbaseTx, txids, nonce } = mineBlock(validTransactions, difficultyTarget);
 
   // Write output to output.txt
-  const outputLines = [blockHeader,nonce, coinbaseTx, ...serializedTransactions];
+  const outputLines = [blockHeader,nonce, coinbaseTx, ...txids];
   writeFile('output.txt', outputLines.join('\n') + '\n');
 
   console.log(`Block mined with nonce: ${nonce}`);
