@@ -34,7 +34,7 @@ function main() {
   const { blockHeader, coinbaseTx, serializedTransactions, nonce } = mineBlock(validTransactions, difficultyTarget);
 
   // Write output to output.txt
-  const outputLines = [blockHeader, coinbaseTx, ...serializedTransactions];
+  const outputLines = [blockHeader,nonce, coinbaseTx, ...serializedTransactions];
   writeFile('output.txt', outputLines.join('\n') + '\n');
 
   console.log(`Block mined with nonce: ${nonce}`);

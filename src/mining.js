@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 
 function mineBlock(transactions, difficultyTarget) {
+  const coinbaseTx = 'My Coinbase Transaction';
+   
+  const blockHeader ='BLOCKHEADER:';
 
 //calculate the merkle root
 
@@ -23,8 +26,7 @@ function mineBlock(transactions, difficultyTarget) {
 
  const MerkleRoot=hashes[0];
 
-  const blockHeader =`BLOCKHEADER: merkele root= ${MerkleRoot}'\n', nonce=${nonce}, target=${difficultyTarget}`;//block header contains: version, previous block hash, merkle root, timestamp, bits, and nonce
-  const coinbaseTx = 'My Coinbase Transaction';
+ 
 
   // Serialize transactions
   const serializedTransactions = [coinbaseTx, ...transactions.flatMap(tx => tx.vin.map(input => input.txid))];
@@ -46,7 +48,8 @@ function mineBlock(transactions, difficultyTarget) {
     }
   }
 
-  return { blockHeader, coinbaseTx, serializedTransactions, nonce };
+
+  return { blockHeader, coinbaseTx, serializedTransactions, nonce,MerkleRoot };
 }
 
 module.exports = { mineBlock };
