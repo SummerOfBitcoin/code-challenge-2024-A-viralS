@@ -5,8 +5,6 @@ const { readFile, writeFile } = require('./utils/fileUtils');
 const { validateTransaction } = require('./utils/transactionUtils');
 const { mineBlock } = require('./mining');
 
-
-
 function main() {
   const mempool = 'mempool';
   const validTransactions = [];
@@ -18,7 +16,7 @@ function main() {
   for (const file of files) {
     const filePath = path.join(mempool, file);
     const transactionData = readFile(filePath);
-    if (validateTransaction(transactionData)) {
+    if (validateTransaction(transactionData,mempool)) {
       validTransactions.push(transactionData);
     }
   }

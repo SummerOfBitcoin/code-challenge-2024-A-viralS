@@ -1,44 +1,48 @@
 const crypto = require('crypto');
 
-function mineBlock(transactions, difficultyTarget) {
-  const coinbaseTx = 'My Coinbase Transaction';
-   
-  const blockHeader ='BLOCKHEADER:';
-
-//calculate the merkle root
-
+function calculateMerkleRoot(transactions) {
   if (transactions.length === 0) {
     return '';
   }
 
-  let hashes = transactions.map(tx => crypto.createHash('sha256').update(JSON.stringify(tx)).digest('hex'));
+  let hashes = transactions.map(tx => crypto.createHash('sha256').update(JSON.stringify(tx)).digest());
 
   while (hashes.length > 1) {
     const newHashes = [];
     for (let i = 0; i < hashes.length; i += 2) {
       const left = hashes[i];
       const right = (i + 1) < hashes.length ? hashes[i + 1] : left;
-      const combinedHash = crypto.createHash('sha256').update(left + right).digest('hex');
+      const combinedHash = crypto.createHash('sha256').update(Buffer.concat([left, right])).digest();
       newHashes.push(combinedHash);
     }
     hashes = newHashes;
   }
 
- const MerkleRoot=hashes[0];
+  return hashes[0].toString('hex');
+}
 
- 
+function mineBlock(transactions, difficultyTarget) {
+  const coinbaseTx = 'My Coinbase Transaction';
+
+  // Calculate the Merkle root
+  const merkleRoot = calculateMerkleRoot(transactions);
+
+  // Populate the block header
+  const version = 1;
+  const previousBlockHash = 'PreviousBlockHash'; // Replace with actual previous block hash
+  const timestamp = Math.floor(Date.now() / 1000);
+  const blockHeader = `${version}|${previousBlockHash}|${timestamp}|${difficultyTarget}|${merkleRoot}|`;
 
   // Serialize transactions
-  const serializedTransactions = [coinbaseTx, ...transactions.flatMap(tx => tx.vin.map(input => input.txid))];
-  //??are we sure that we have to write input.txid in this 
-
+  const serializedTransactions = transactions.map(tx => JSON.stringify(tx));
+  
   // Find a valid nonce
   let nonce = 0;
   while (true) {
-    const blockData = blockHeader + serializedTransactions.join('') + nonce;
+    const blockData = `${blockHeader}|${coinbaseTx}|${serializedTransactions.join('|')}|${nonce}`;
     const blockHash = crypto.createHash('sha256').update(blockData).digest('hex');
 
-    if (blockHash < difficultyTarget) {
+    if (parseInt(blockHash, 16) < parseInt(difficultyTarget, 16)) {
       break;
     }
 
@@ -48,8 +52,7 @@ function mineBlock(transactions, difficultyTarget) {
     }
   }
 
-
-  return { blockHeader, coinbaseTx, serializedTransactions, nonce,MerkleRoot };
+  return { blockHeader, coinbaseTx, serializedTransactions, nonce, merkleRoot };
 }
 
 module.exports = { mineBlock };
