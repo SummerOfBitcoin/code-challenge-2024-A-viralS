@@ -37,7 +37,7 @@ function mineBlock(transactions, difficultyTarget) {
   const serializedTransactions = transactions.map(tx => JSON.stringify(tx));
   
   // Find a valid nonce
-  let nonce = 0;
+  let nonce = 30000;
   while (true) {
     const blockData = `${blockHeader}|${coinbaseTx}|${serializedTransactions.join('|')}|${nonce}`;
     const blockHash = crypto.createHash('sha256').update(blockData).digest('hex');
