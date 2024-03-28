@@ -16,7 +16,7 @@ function main() {
   for (const file of files) {
     const filePath = path.join(mempool, file);
     const transactionData = readFile(filePath);
-    if (validateTransaction(transactionData,mempool)) {
+    if (validateTransaction(transactionData)) {
       validTransactions.push(transactionData);
     }
   }
