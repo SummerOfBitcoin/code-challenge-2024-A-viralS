@@ -3,7 +3,7 @@ const secp256k1 = require('secp256k1');
 
 function validateTransaction(transactionData) {
     // Additional checks
-
+    
     // 1. Validate ScriptPubKey Address Formats
     for (const output of transactionData.vout) {
         if (output.scriptpubkey_type === "v1_p2tr" && !isValidBech32Address(output.scriptpubkey_address, "bc")) {

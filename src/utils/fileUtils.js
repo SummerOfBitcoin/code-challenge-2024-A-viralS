@@ -8,4 +8,8 @@ function writeFile(filePath, content) {
   fs.writeFileSync(filePath, content);
 }
 
-module.exports = { readFile, writeFile };
+function fileExists(filePath) {
+  return fs.existsSync(filePath);
+}
+
+module.exports = { readFile, writeFile, fileExists };

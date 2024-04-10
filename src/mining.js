@@ -1,5 +1,51 @@
 const crypto = require('crypto');
 
+function calculateTXID(transaction) {
+  const { version, vin, vout, locktime } = transaction;
+  const transactionData = `${version}${JSON.stringify(vin)}${JSON.stringify(vout)}${locktime}`;
+  const txid = crypto.createHash('sha256').update(transactionData).digest('hex');
+  return txid;
+}
+
+function mineBlock(transactions, difficultyTarget) {
+  const coinbaseTx = 'My Coinbase Transaction';
+
+  // Calculate the Merkle root
+  const merkleRoot = calculateMerkleRoot(transactions);
+
+  // Calculate the transaction IDs (TXIDs)
+  const txids = transactions.map(tx => calculateTXID(tx));
+
+  // Populate the block header
+  const version = 1;
+  const previousBlockHash = 'PreviousBlockHash'; // Replace with actual previous block hash
+  const timestamp = Math.floor(Date.now() / 1000);
+  const blockHeader = `${version}|${previousBlockHash}|${timestamp}|${difficultyTarget}|${merkleRoot}|`;
+
+  // Find a valid nonce
+  let nonce = 0;
+  while (true) {
+    const blockData = `${blockHeader}|${coinbaseTx}|${txids.join('|')}|${nonce}`;
+    const blockHash = crypto.createHash('sha256').update(blockData).digest('hex');
+
+    if (parseInt(blockHash, 16) < parseInt(difficultyTarget, 16)) {
+      break;
+    }
+
+    nonce++;
+    if (nonce % 1000000 === 0) {
+      console.log(`Trying nonce: ${nonce}`);
+    }
+  }
+
+  console.log('merkleRoot:', merkleRoot);
+
+  return { blockHeader, coinbaseTx, txids, nonce, merkleRoot };
+}
+
+module.exports = { mineBlock };
+
+// Helper function to calculate the Merkle Root
 function calculateMerkleRoot(transactions) {
   if (transactions.length === 0) {
     return '';
@@ -20,42 +66,3 @@ function calculateMerkleRoot(transactions) {
 
   return hashes[0].toString('hex');
 }
-
-function mineBlock(transactions, difficultyTarget) {
-  const coinbaseTx = 'My Coinbase Transaction';
-
-  // Calculate the Merkle root
-  const merkleRoot = calculateMerkleRoot(transactions);
-
-  // Populate the block header
-  const version = 1;
-  const previousBlockHash = 'PreviousBlockHash'; // Replace with actual previous block hash
-  const timestamp = Math.floor(Date.now() / 1000);
-  const blockHeader = `${version}|${previousBlockHash}|${timestamp}|${difficultyTarget}|${merkleRoot}|`;
-
-  // Serialize transactions
-  const serializedTransactions = transactions.map(tx => JSON.stringify(tx));
-  
-  // Find a valid nonce
-  let nonce = 0;
-  while (true) {
-    const blockData = `${blockHeader}|${coinbaseTx}|${serializedTransactions.join('|')}|${nonce}`;
-    const blockHash = crypto.createHash('sha256').update(blockData).digest('hex');
-
-    if (parseInt(blockHash, 16) < parseInt(difficultyTarget, 16)) {
-      break;
-    }
-
-    nonce++;
-    if (nonce % 1000000 === 0) {
-      console.log(`Trying nonce: ${nonce}`);
-    }
-  }
-console.log('merkleRoot:', merkleRoot);
-const txids = transactions.map(tx => tx.vin.map(input => input.txid)).flat();
-
-return { blockHeader, coinbaseTx, txids, nonce, merkleRoot };
-
-}
-
-module.exports = { mineBlock };
