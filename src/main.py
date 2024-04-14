@@ -33,6 +33,9 @@ def main():
 
     # Get the block header from the mined block
     block_header = mined_block["block_header"]
+    print('block_header', block_header.hex())
+    nounce = mined_block["nonce"]
+    print('nounce in main', nounce)
 
     # Serialize the coinbase transaction
     # coinbase_tx = mined_block["coinbase_tx"]
@@ -46,7 +49,7 @@ def main():
     output_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output.txt")
     with open(output_path, "w") as output_file:
     # Write the block header
-       output_file.write(serialize_block_header(block_header) + "\n")
+       output_file.write(block_header.hex() + "\n")
 
     # Write the serialized coinbase transaction
        output_file.write("coinbase transaction" + "\n")
@@ -59,14 +62,14 @@ print("Output file 'output.txt' generated successfully.")
 
 
 
-def serialize_block_header(block_header):
-    serialized_header = ""
-    for item in block_header:
-        if isinstance(item, int):
-            serialized_header += struct.pack("<L", item).hex()
-        else:
-            serialized_header += item
-    return serialized_header
+# def serialize_block_header(block_header):
+#     serialized_header = ""
+#     for item in block_header:
+#         if isinstance(item, int):
+#             serialized_header += struct.pack("<L", item).hex()
+#         else:
+#             serialized_header += item
+#     return serialized_header
 
 
 if __name__ == "__main__":

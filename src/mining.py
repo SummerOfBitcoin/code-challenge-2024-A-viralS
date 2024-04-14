@@ -1,7 +1,8 @@
 import hashlib
 import struct
-import json 
+import json
 import time
+
 
 def serialize_tx(transaction):
     serialized = b""
@@ -25,7 +26,7 @@ def serialize_tx(transaction):
         serialized += scriptpubkey_bytes
 
     serialized += struct.pack("<L", transaction["locktime"])  # Locktime
- 
+
     txid = hashlib.sha256(hashlib.sha256(serialized).digest()).hexdigest()
 
     return txid
@@ -52,12 +53,11 @@ def calculate_merkle_root(transactions):
 
     return hashes[0].hex()
 
-
-    
 def mine_block(transactions, difficulty_target):
     coinbase_tx = "My Coinbase Transaction"
 
     merkle_root = calculate_merkle_root(transactions)
+    print('merkle_root', merkle_root)
 
     txids = [serialize_tx(tx) for tx in transactions]
 
@@ -65,43 +65,46 @@ def mine_block(transactions, difficulty_target):
     previous_block_hash = "00000000000000000397532e06a7601fb7a0d82e93a644c65d4b1ba011931dca"  # random hash example
     timestamp = int(time.time())
     bits = int(difficulty_target, 16)  # Convert difficulty target to integer
-    nonce = 0
+    
+    nonce = 0  # Initialize nonce here
 
     # Format version as 4-byte little-endian
-    version_bytes = version.to_bytes(4, byteorder='little')
+    version_bytes = version.to_bytes(4, byteorder="little")
 
     # Format previous_block_hash and merkle_root as natural byte order
     previous_block_hash_bytes = bytes.fromhex(previous_block_hash)[::-1]
     merkle_root_bytes = bytes.fromhex(merkle_root)[::-1]
 
     # Format timestamp, bits, and nonce as 4-byte little-endian
-    timestamp_bytes = timestamp.to_bytes(4, byteorder='little')
+    timestamp_bytes = timestamp.to_bytes(4, byteorder="little")
     difficulty_target_int = int(difficulty_target, 16)
-    difficulty_target_bytes = difficulty_target_int.to_bytes(32, byteorder='big')
-    nonce_bytes = nonce.to_bytes(4, byteorder='little')
+    difficulty_target_bytes = difficulty_target_int.to_bytes(32, byteorder="big")
+    nonce_bytes = nonce.to_bytes(4, byteorder="little")
 
-    block_header = {
-        "version": version_bytes,
-        "previous_block_hash": previous_block_hash_bytes,
-        "merkle_root": merkle_root_bytes,
-        "timestamp": timestamp_bytes,
-        "bits": difficulty_target_bytes,
-        "nonce": nonce_bytes
-    }
+
+    block_header = version_bytes + previous_block_hash_bytes + merkle_root_bytes + timestamp_bytes + difficulty_target_bytes + nonce_bytes
 
     while True:
-        block_data = [coinbase_tx] + txids + [str(nonce)]
-        block_hash = hashlib.sha256(
-            hashlib.sha256(serialize_block(block_header).encode() + "|".join(block_data).encode()).digest()
-        ).hexdigest()
+       block_data = [coinbase_tx] + txids + [str(nonce)]
+       block_header = version_bytes + previous_block_hash_bytes + merkle_root_bytes + timestamp_bytes + difficulty_target_bytes + nonce.to_bytes(4, byteorder="little")
+       block_hash = hashlib.sha256(
+        hashlib.sha256(
+            serialize_block(block_header).encode() + "|".join(block_data).encode()
+             ).digest()
+                  ).hexdigest()
 
-        if int(block_hash, 16) < bits:
+       if int(block_hash, 16) < bits:
             break
 
-        nonce += 1
-        if nonce % 1000000 == 0:
-            print(f"Trying nonce: {nonce}")
+       nonce += 1
+       if nonce % 1000000 == 0:
+           print(f"Trying nonce: {nonce}")
 
+    # Update the nonce_bytes in the block_header after proof of work
+    nonce_bytes = nonce.to_bytes(4, byteorder="little")
+    print('nonce in mine_block', nonce)
+    block_header = version_bytes + previous_block_hash_bytes + merkle_root_bytes + timestamp_bytes + difficulty_target_bytes + nonce_bytes
+   
     return {
         "block_header": block_header,
         "coinbase_tx": coinbase_tx,
@@ -111,15 +114,18 @@ def mine_block(transactions, difficulty_target):
     }
 
 
+
 def compact_size(value):
-    if value < 0xfd:
-        return value.to_bytes(1, 'little')
-    elif value <= 0xffff:
-        return b'\xfd' + value.to_bytes(2, 'little')
-    elif value <= 0xffffffff:
-        return b'\xfe' + value.to_bytes(4, 'little')
+    if value < 0xFD:
+        return value.to_bytes(1, "little")
+    elif value <= 0xFFFF:
+        return b"\xfd" + value.to_bytes(2, "little")
+    elif value <= 0xFFFFFFFF:
+        return b"\xfe" + value.to_bytes(4, "little")
     else:
-        return b'\xff' + value.to_bytes(8, 'little')
+        return b"\xff" + value.to_bytes(8, "little")
+
+
 def encode_varint(n):
     if n < 0xFD:
         return struct.pack("<B", n)
@@ -132,5 +138,3 @@ def encode_varint(n):
 
 
 # Example transaction
-
-
