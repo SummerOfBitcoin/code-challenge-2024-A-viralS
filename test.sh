@@ -4,10 +4,9 @@
 
 
 # Activate your virtual environment (if needed)
-source myenv/bin/activate
 
 # Install any Python dependencies (if needed)
 pip install -r requirements.txt
 
 # Run your Python tests or verification scripts
-python myenv/src/main.py
+python src/main.py
