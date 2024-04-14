@@ -167,7 +167,7 @@ transactions={
         "30440220780ad409b4d13eb1882aaf2e7a53a206734aa302279d6859e254a7f0a7633556022011fd0cbdf5d4374513ef60f850b7059c6a093ab9e46beb002505b7cba0623cf301",
         "022bf8c45da789f695d59f93983c813ec205203056e19ec5d3fbefa809af67e2ec"
       ],
-      "is_coinbase": false,
+
       "sequence": 4294967295
     }
   ],
