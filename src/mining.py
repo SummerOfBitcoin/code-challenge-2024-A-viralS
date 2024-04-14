@@ -53,6 +53,7 @@ def calculate_merkle_root(transactions):
     return hashes[0].hex()
 
 
+    
 def mine_block(transactions, difficulty_target):
     coinbase_tx = "My Coinbase Transaction"
 
@@ -61,24 +62,40 @@ def mine_block(transactions, difficulty_target):
     txids = [serialize_tx(tx) for tx in transactions]
 
     version = 1
-    previous_block_hash = "PreviousBlockHash"
+    previous_block_hash = "00000000000000000397532e06a7601fb7a0d82e93a644c65d4b1ba011931dca"  # random hash example
     timestamp = int(time.time())
-    block_header = [
-        version,
-        previous_block_hash,
-        timestamp,
-        difficulty_target,
-        merkle_root,
-    ]
-
+    bits = int(difficulty_target, 16)  # Convert difficulty target to integer
     nonce = 0
+
+    # Format version as 4-byte little-endian
+    version_bytes = version.to_bytes(4, byteorder='little')
+
+    # Format previous_block_hash and merkle_root as natural byte order
+    previous_block_hash_bytes = bytes.fromhex(previous_block_hash)[::-1]
+    merkle_root_bytes = bytes.fromhex(merkle_root)[::-1]
+
+    # Format timestamp, bits, and nonce as 4-byte little-endian
+    timestamp_bytes = timestamp.to_bytes(4, byteorder='little')
+    difficulty_target_int = int(difficulty_target, 16)
+    difficulty_target_bytes = difficulty_target_int.to_bytes(32, byteorder='big')
+    nonce_bytes = nonce.to_bytes(4, byteorder='little')
+
+    block_header = {
+        "version": version_bytes,
+        "previous_block_hash": previous_block_hash_bytes,
+        "merkle_root": merkle_root_bytes,
+        "timestamp": timestamp_bytes,
+        "bits": difficulty_target_bytes,
+        "nonce": nonce_bytes
+    }
+
     while True:
-        block_data = [serialize_block(block_header), coinbase_tx] + txids + [str(nonce)]
+        block_data = [coinbase_tx] + txids + [str(nonce)]
         block_hash = hashlib.sha256(
-            hashlib.sha256("|".join(block_data).encode()).digest()
+            hashlib.sha256(serialize_block(block_header).encode() + "|".join(block_data).encode()).digest()
         ).hexdigest()
 
-        if int(block_hash, 16) < int(difficulty_target, 16):
+        if int(block_hash, 16) < bits:
             break
 
         nonce += 1
@@ -94,6 +111,15 @@ def mine_block(transactions, difficulty_target):
     }
 
 
+def compact_size(value):
+    if value < 0xfd:
+        return value.to_bytes(1, 'little')
+    elif value <= 0xffff:
+        return b'\xfd' + value.to_bytes(2, 'little')
+    elif value <= 0xffffffff:
+        return b'\xfe' + value.to_bytes(4, 'little')
+    else:
+        return b'\xff' + value.to_bytes(8, 'little')
 def encode_varint(n):
     if n < 0xFD:
         return struct.pack("<B", n)
