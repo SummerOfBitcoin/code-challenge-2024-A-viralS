@@ -43,7 +43,7 @@ def main():
 
     # Write the block header to the output file
     # Write the block header, coinbase transaction, and transaction IDs to the output file
-    output_path = os.path.join(os.path.dirname(__file__), "output.txt")
+    output_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output.txt")
     with open(output_path, "w") as output_file:
     # Write the block header
        output_file.write(serialize_block_header(block_header) + "\n")

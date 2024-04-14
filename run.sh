@@ -1,2 +1,2 @@
 #!/bin/bash
-node src/main.js
+python3 src/main.py
