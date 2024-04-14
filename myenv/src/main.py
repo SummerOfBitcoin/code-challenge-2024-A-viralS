@@ -1,4 +1,3 @@
-
 import os
 import struct
 from utils.fileUtils import read_file, write_file, file_exists

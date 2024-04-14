@@ -1,6 +1,5 @@
-
-import hashlib
 import secp256k1
+import hashlib
 from typing import List, Dict
 import re
 
