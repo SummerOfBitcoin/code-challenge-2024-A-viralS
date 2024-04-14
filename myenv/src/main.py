@@ -7,7 +7,13 @@ from utils.transactionUtils import validate_transaction
 
 
 def main():
-    mempool_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "mempool")
+    src_dir = os.path.dirname(__file__)
+
+# Navigate two directories up to reach the parent directory of myenv
+    parent_dir = os.path.dirname(os.path.dirname(src_dir))
+
+# Construct the path to the mempool directory
+    mempool_path = os.path.join(parent_dir, "mempool")
     valid_transactions = []
 
     # Read and validate transactions from mempool
@@ -47,7 +53,7 @@ def main():
 
     # Write the block header to the output file
     # Write the block header, coinbase transaction, and transaction IDs to the output file
-    output_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output.txt")
+    output_path = os.path.join(parent_dir, "output.txt")
     with open(output_path, "w") as output_file:
     # Write the block header
        output_file.write(block_header.hex() + "\n")
