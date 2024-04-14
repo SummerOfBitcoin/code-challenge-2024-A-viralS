@@ -4,9 +4,7 @@ import hashlib
 import secp256k1
 from typing import List, Dict
 import re
-import sys
 
-print(sys.path)
 
 
 def validate_transaction(transaction_data: Dict) -> bool:
