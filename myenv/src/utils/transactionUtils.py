@@ -1,3 +1,4 @@
+#!./code-challenge-2024-A-viralS/myenv/bin/python
 import secp256k1 
 import hashlib
 from typing import List, Dict
