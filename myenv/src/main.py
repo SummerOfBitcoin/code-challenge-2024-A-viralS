@@ -1,3 +1,4 @@
+#!./code-challenge-2024-A-viralS/myenv/bin/python
 import os
 import struct
 from utils.fileUtils import read_file, write_file, file_exists
