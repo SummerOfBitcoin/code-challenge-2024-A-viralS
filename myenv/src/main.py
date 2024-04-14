@@ -8,8 +8,8 @@ from utils.transactionUtils import validate_transaction
 def main():
     src_dir = os.path.dirname(__file__)
 
-# Navigate one directory up to reach the parent directory
-    parent_dir = os.path.dirname(src_dir)
+# Navigate two directories up to reach the parent directory of myenv
+    parent_dir = os.path.dirname(os.path.dirname(src_dir))
 
 # Construct the path to the mempool directory
     mempool_path = os.path.join(parent_dir, "mempool")
