@@ -84,7 +84,7 @@ def mine_block(transactions, difficulty_target):
 
     txids = [serialize_tx(tx) for tx in transactions]
 
-    version = 3
+    version = 4
    
     previous_block_hash = "00000000000000000397532e06a7601fb7a0d82e93a644c65d4b1ba011931dca"  # random hash example
     timestamp = int(time.time())
