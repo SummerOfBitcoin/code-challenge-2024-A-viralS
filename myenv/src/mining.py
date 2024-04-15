@@ -129,7 +129,7 @@ def mine_block(transactions, difficulty_target):
             ).digest()
         ).hexdigest()
 
-        if int(block_hash, 16) < bits:
+        if int(block_hash, 16) < compact_target.to_bytes(4, byteorder="little"):
             break
 
         nonce += 1
