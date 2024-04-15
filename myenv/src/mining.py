@@ -102,9 +102,9 @@ def mine_block(transactions, difficulty_target):
 
     # Format previous_block_hash and merkle_root as natural byte order
     previous_block_hash_bytes = bytes.fromhex(previous_block_hash)[::-1]
-    merkle_root_bytes = (merkle_root)[::-1]
+    merkle_root_bytes = bytes.fromhex(merkle_root)[::-1]
     # print("merkle_root_bytes", merkle_root_bytes.hex())
-    # print("without hex ", merkle_root)
+    print("without hex ", merkle_root)
 
     # Format timestamp, bits, and nonce as 4-byte little-endian
     timestamp_bytes = timestamp.to_bytes(4, byteorder="little")
