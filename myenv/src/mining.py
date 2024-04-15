@@ -114,7 +114,7 @@ def mine_block(transactions, difficulty_target):
         + difficulty_target_bytes
         + nonce.to_bytes(4, byteorder="little")
     )
-
+    print('bits',bits.to_bytes(32, byteorder="big").hex())
     while True:
         block_data = [coinbase_tx] + txids + [str(nonce)]
         block_header = (
@@ -126,8 +126,7 @@ def mine_block(transactions, difficulty_target):
             + nonce.to_bytes(4, byteorder="little")
         )
         block_hash = hashlib.sha256(hashlib.sha256(block_header).digest()).digest()[::-1].hex()
-        print("block_hash", block_hash)
-        print("bits", bits)
+        
         if (block_hash) < bits.to_bytes(32, byteorder="big").hex():
             break
 
