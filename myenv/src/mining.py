@@ -62,18 +62,22 @@ def calculate_merkle_root(transactions):
     if len(transactions) == 0:
         return ""
 
-    txids = [tx[::-1] for tx in transactions]
+    # Convert txids to natural byte order
+    txids = [serialize_tx(tx)[::-1] for tx in transactions]
 
-    while len(txids) > 1:
-        new_txids = []
-        for i in range(0, len(txids), 2):
-            left = txids[i]
-            right = txids[i + 1] if i + 1 < len(txids) else left
-            combined_hash = hashlib.sha256(hashlib.sha256(left.encode()).digest() + hashlib.sha256(right.encode()).digest()).digest()
-            new_txids.append(combined_hash.hex())
-        txids = new_txids
+    hashes = [hashlib.sha256(bytes.fromhex(tx)).digest() for tx in txids]
 
-    return txids[0].hex()
+    while len(hashes) > 1:
+        new_hashes = []
+        for i in range(0, len(hashes), 2):
+            left = hashes[i]
+            right = hashes[i + 1] if i + 1 < len(hashes) else left
+            combined_hash = hashlib.sha256(left + right).digest()
+            new_hashes.append(combined_hash)
+        hashes = new_hashes
+
+    return hashes[0].hex()
+
 
 
 

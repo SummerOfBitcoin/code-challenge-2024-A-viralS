@@ -19,7 +19,7 @@ def main():
     # Read and validate transactions from mempool
     files = os.listdir(mempool_path)
     filename_to_check = (
-        "60827e54145cd8eba8bd0db56eb74208ed483007e15aa2fec62f378ca170646f.json"
+        "00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a.json"
     )
     exists = filename_to_check in files
 
