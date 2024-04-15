@@ -76,9 +76,7 @@ def calculate_merkle_root(transactions):
             new_hashes.append(combined_hash)
         hashes = new_hashes
 
-    return hashes[0][::1].hex()
-
-
+    return hashes[0].hex()
 
 
 def mine_block(transactions, difficulty_target):
@@ -90,7 +88,7 @@ def mine_block(transactions, difficulty_target):
     txids = [serialize_tx(tx) for tx in transactions]
 
     version = 4
-   
+
     previous_block_hash = "00000000000000000397532e06a7601fb7a0d82e93a644c65d4b1ba011931dca"  # random hash example
     timestamp = int(time.time())
     bits = int(difficulty_target, 16)  # Convert difficulty target to integer
@@ -103,6 +101,7 @@ def mine_block(transactions, difficulty_target):
     # Format previous_block_hash and merkle_root as natural byte order
     previous_block_hash_bytes = bytes.fromhex(previous_block_hash)[::-1]
     merkle_root_bytes = bytes.fromhex(merkle_root)
+    print("merkle_root_bytes", merkle_root_bytes)
 
     # Format timestamp, bits, and nonce as 4-byte little-endian
     timestamp_bytes = timestamp.to_bytes(4, byteorder="little")
@@ -120,7 +119,7 @@ def mine_block(transactions, difficulty_target):
         + difficulty_target_bytes
         + nonce.to_bytes(4, byteorder="little")
     )
-    print('bits',bits.to_bytes(32, byteorder="big").hex())
+    print("bits", bits.to_bytes(32, byteorder="big").hex())
     while True:
         block_data = [coinbase_tx] + txids + [str(nonce)]
         block_header = (
@@ -131,8 +130,10 @@ def mine_block(transactions, difficulty_target):
             + difficulty_target_bytes
             + nonce.to_bytes(4, byteorder="little")
         )
-        block_hash = hashlib.sha256(hashlib.sha256(block_header).digest()).digest()[::-1].hex()
-        
+        block_hash = (
+            hashlib.sha256(hashlib.sha256(block_header).digest()).digest()[::-1].hex()
+        )
+
         if (block_hash) < bits.to_bytes(32, byteorder="big").hex():
             break
 
