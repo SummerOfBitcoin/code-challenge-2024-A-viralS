@@ -50,7 +50,7 @@ def main():
 
     # Extract txids from mined block
     txids = mined_block["txids"]
-
+    reversed_txid= [txid[::-1] for txid in txids]
     # Write the block header to the output file
     # Write the block header, coinbase transaction, and transaction IDs to the output file
     output_path = os.path.join(parent_dir, "output.txt")
@@ -62,7 +62,7 @@ def main():
         output_file.write("coinbase transaction" + "\n")
 
         # Write the transaction IDs (txids) of the transactions mined in the block
-        for txid in txids:
+        for txid in reversed_txid:
             output_file.write(txid + "\n")
 
 
