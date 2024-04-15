@@ -90,7 +90,7 @@ def mine_block(transactions, difficulty_target):
     version = 4
 
     previous_block_hash = "00000000000000000397532e06a7601fb7a0d82e93a644c65d4b1ba011931dca"  # random hash example
-
+    
     timestamp = int(time.time())
     bits = int(difficulty_target, 16)  # Convert difficulty target to integer
 
@@ -100,7 +100,7 @@ def mine_block(transactions, difficulty_target):
     version_bytes = version.to_bytes(4, byteorder="little")
 
     # Format previous_block_hash and merkle_root as natural byte order
-    previous_block_hash_bytes = bytes.fromhex(previous_block_hash)
+    previous_block_hash_bytes = bytes.fromhex(previous_block_hash)[::-1]
     merkle_root_bytes = bytes.fromhex(merkle_root)
     print("merkle_root_bytes", merkle_root_bytes)
 
