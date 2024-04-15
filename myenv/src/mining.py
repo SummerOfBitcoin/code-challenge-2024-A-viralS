@@ -125,13 +125,10 @@ def mine_block(transactions, difficulty_target):
             + difficulty_target_bytes
             + nonce.to_bytes(4, byteorder="little")
         )
-        block_hash = hashlib.sha256(
-            hashlib.sha256(
-                serialize_block(block_header).encode() + "|".join(block_data).encode()
-            ).digest()
-        ).hexdigest()
-
-        if int(block_hash, 16) < bits:
+        block_hash = hashlib.sha256(hashlib.sha256(block_header).digest()).digest()[::-1].hex()
+        print("block_hash", block_hash)
+        print("bits", bits)
+        if (block_hash) < bits.to_bytes(32, byteorder="big").hex():
             break
 
         nonce += 1
@@ -149,7 +146,7 @@ def mine_block(transactions, difficulty_target):
         + difficulty_target_bytes
         + nonce_bytes
     )
-
+    print("block_header", block_header.hex())
     return {
         "block_header": block_header,
         "coinbase_tx": coinbase_tx,
