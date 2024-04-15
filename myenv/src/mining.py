@@ -3,7 +3,6 @@ import struct
 import json
 import time
 
-
 def get_compact(target):
     nSize = (target.bit_length() + 7) // 8
     nCompact = 0
@@ -24,7 +23,6 @@ def get_compact(target):
     nCompact |= nSize << 24
 
     return nCompact
-
 
 def serialize_tx(transaction):
     serialized = b""
@@ -61,23 +59,26 @@ def serialize_block(block_data):
 def calculate_merkle_root(transactions):
     if len(transactions) == 0:
         return ""
+    txids = [serialize_tx(tx)[::-1] for tx in transactions]
 
-    # Convert txids to natural byte order
-    txids = [serialize_tx(tx) for tx in transactions]
-    txids = [bytes.fromhex(tx)[::-1] for tx in txids]
 
-    # hashes = [hashlib.sha256(bytes.fromhex(tx)).digest() for tx in txids]
+    # Convert txids to little-endian byte buffers
+    tx_buffers = [bytes.fromhex(tx)[::-1] for tx in txids]
 
-    while len(hashes) > 1:
-        new_hashes = []
-        for i in range(0, len(hashes), 2):
-            left = hashes[i]
-            right = hashes[i + 1] if i + 1 < len(hashes) else left
-            combined_hash = hashlib.sha256(left + right).digest()
-            new_hashes.append(combined_hash)
-        hashes = new_hashes
+    # 2-D array to save merkle tree and compute proof
+    merkle_tree = [tx_buffers]
 
-    return hashes[0].hex()
+    while len(tx_buffers) > 1:
+        merkle_leaves = []
+        # Iterate over transactions, form pairs, and hash nodes
+        for i in range(0, len(tx_buffers), 2):
+            concatenated = tx_buffers[i] + (tx_buffers[i + 1] if i + 1 < len(tx_buffers) else tx_buffers[i])
+            hashed = hashlib.sha256(hashlib.sha256(concatenated).digest()).digest()
+            merkle_leaves.append(hashed)
+        merkle_tree.append(merkle_leaves)
+        tx_buffers = merkle_leaves
+
+    return merkle_tree[-1][0].hex()
 
 
 def mine_block(transactions, difficulty_target):
@@ -101,8 +102,9 @@ def mine_block(transactions, difficulty_target):
 
     # Format previous_block_hash and merkle_root as natural byte order
     previous_block_hash_bytes = bytes.fromhex(previous_block_hash)[::-1]
-    merkle_root_bytes = bytes.fromhex(merkle_root)[::-1]
-    print("merkle_root_bytes", merkle_root_bytes)
+    merkle_root_bytes = bytes.fromhex(merkle_root)
+    print("merkle_root_bytes", merkle_root_bytes.hex())
+    print("without hex ", merkle_root)
 
     # Format timestamp, bits, and nonce as 4-byte little-endian
     timestamp_bytes = timestamp.to_bytes(4, byteorder="little")
