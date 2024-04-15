@@ -62,7 +62,7 @@ def calculate_merkle_root(transactions):
     if len(transactions) == 0:
         return ""
 
-    txids = [serialize_tx(tx) for tx in transactions]
+    txids = [tx[::-1] for tx in transactions]
 
     while len(txids) > 1:
         new_txids = []
@@ -73,7 +73,7 @@ def calculate_merkle_root(transactions):
             new_txids.append(combined_hash.hex())
         txids = new_txids
 
-    return txids[0]
+    return txids[0].hex()
 
 
 
