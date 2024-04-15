@@ -76,7 +76,7 @@ def calculate_merkle_root(transactions):
             new_hashes.append(combined_hash)
         hashes = new_hashes
 
-    return hashes[0].hex()
+    return hashes[0][::1].hex()
 
 
 
