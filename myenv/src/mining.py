@@ -18,12 +18,14 @@ def get_compact(target):
         nCompact >>= 8
         nSize += 1
 
-    assert (nCompact & ~0x007fffff) == 0
+    assert (nCompact & ~0x007FFFFF) == 0
     assert nSize < 256
 
     nCompact |= nSize << 24
 
     return nCompact
+
+
 def serialize_tx(transaction):
     serialized = b""
     serialized += struct.pack("<L", transaction["version"])  # Version
@@ -129,7 +131,7 @@ def mine_block(transactions, difficulty_target):
             ).digest()
         ).hexdigest()
 
-        if int(block_hash, 16) < compact_target.to_bytes(4, byteorder="little"):
+        if int(block_hash, 16) < bits:
             break
 
         nonce += 1
