@@ -4,6 +4,26 @@ import json
 import time
 
 
+def get_compact(target):
+    nSize = (target.bit_length() + 7) // 8
+    nCompact = 0
+    if nSize <= 3:
+        nCompact = target << (8 * (3 - nSize))
+    else:
+        bn = target >> (8 * (nSize - 3))
+        nCompact = bn
+
+    # Check if the sign bit is set
+    if nCompact & 0x00800000:
+        nCompact >>= 8
+        nSize += 1
+
+    assert (nCompact & ~0x007fffff) == 0
+    assert nSize < 256
+
+    nCompact |= nSize << 24
+
+    return nCompact
 def serialize_tx(transaction):
     serialized = b""
     serialized += struct.pack("<L", transaction["version"])  # Version
@@ -53,11 +73,12 @@ def calculate_merkle_root(transactions):
 
     return hashes[0].hex()
 
+
 def mine_block(transactions, difficulty_target):
     coinbase_tx = "My Coinbase Transaction"
 
     merkle_root = calculate_merkle_root(transactions)
-    print('merkle_root', merkle_root)
+    print("merkle_root", merkle_root)
 
     txids = [serialize_tx(tx) for tx in transactions]
 
@@ -65,7 +86,7 @@ def mine_block(transactions, difficulty_target):
     previous_block_hash = "00000000000000000397532e06a7601fb7a0d82e93a644c65d4b1ba011931dca"  # random hash example
     timestamp = int(time.time())
     bits = int(difficulty_target, 16)  # Convert difficulty target to integer
-    
+
     nonce = 0  # Initialize nonce here
 
     # Format version as 4-byte little-endian
@@ -77,34 +98,56 @@ def mine_block(transactions, difficulty_target):
 
     # Format timestamp, bits, and nonce as 4-byte little-endian
     timestamp_bytes = timestamp.to_bytes(4, byteorder="little")
-    difficulty_target_int = int(difficulty_target, 16)
-    difficulty_target_bytes = difficulty_target_int.to_bytes(32, byteorder="big")
-    nonce_bytes = nonce.to_bytes(4, byteorder="little")
 
+    compact_target = get_compact(bits)
+    print("compact_target:", hex(compact_target))
+    difficulty_target_bytes = compact_target.to_bytes(4, byteorder="little")
 
-    block_header = version_bytes + previous_block_hash_bytes + merkle_root_bytes + timestamp_bytes + difficulty_target_bytes + nonce_bytes
+    # Initialize block header
+    block_header = (
+        version_bytes
+        + previous_block_hash_bytes
+        + merkle_root_bytes
+        + timestamp_bytes
+        + difficulty_target_bytes
+        + nonce.to_bytes(4, byteorder="little")
+    )
 
     while True:
-       block_data = [coinbase_tx] + txids + [str(nonce)]
-       block_header = version_bytes + previous_block_hash_bytes + merkle_root_bytes + timestamp_bytes + difficulty_target_bytes + nonce.to_bytes(4, byteorder="little")
-       block_hash = hashlib.sha256(
-        hashlib.sha256(
-            serialize_block(block_header).encode() + "|".join(block_data).encode()
-             ).digest()
-                  ).hexdigest()
+        block_data = [coinbase_tx] + txids + [str(nonce)]
+        block_header = (
+            version_bytes
+            + previous_block_hash_bytes
+            + merkle_root_bytes
+            + timestamp_bytes
+            + difficulty_target_bytes
+            + nonce.to_bytes(4, byteorder="little")
+        )
+        block_hash = hashlib.sha256(
+            hashlib.sha256(
+                serialize_block(block_header).encode() + "|".join(block_data).encode()
+            ).digest()
+        ).hexdigest()
 
-       if int(block_hash, 16) < bits:
+        if int(block_hash, 16) < bits:
             break
 
-       nonce += 1
-       if nonce % 1000000 == 0:
-           print(f"Trying nonce: {nonce}")
+        nonce += 1
+        if nonce % 1000000 == 0:
+            print(f"Trying nonce: {nonce}")
 
     # Update the nonce_bytes in the block_header after proof of work
     nonce_bytes = nonce.to_bytes(4, byteorder="little")
-    print('nonce in mine_block', nonce)
-    block_header = version_bytes + previous_block_hash_bytes + merkle_root_bytes + timestamp_bytes + difficulty_target_bytes + nonce_bytes
-   
+    print("nonce in mine_block", nonce)
+    block_header = (
+        version_bytes
+        + previous_block_hash_bytes
+        + merkle_root_bytes
+        + timestamp_bytes
+        + difficulty_target_bytes
+        + nonce_bytes
+    )
+
     return {
         "block_header": block_header,
         "coinbase_tx": coinbase_tx,
@@ -112,7 +155,6 @@ def mine_block(transactions, difficulty_target):
         "nonce": nonce,
         "merkle_root": merkle_root,
     }
-
 
 
 def compact_size(value):
