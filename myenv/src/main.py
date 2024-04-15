@@ -62,8 +62,8 @@ def main():
         output_file.write("coinbase transaction" + "\n")
 
         # Write the transaction IDs (txids) of the transactions mined in the block
-        for txid in reversed_txid:
-            output_file.write(txid + "\n")
+        for txid in txids:
+            output_file.write(txid + "test"+"\n")
 
 
 print("Output file 'output.txt' generated successfully.")
