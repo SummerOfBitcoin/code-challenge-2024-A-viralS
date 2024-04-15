@@ -63,7 +63,7 @@ def main():
 
         # Write the transaction IDs (txids) of the transactions mined in the block
         for txid in txids:
-            output_file.write(txid + "test"+"\n")
+            output_file.write(txid + "1234"+"\n")
 
 
 print("Output file 'output.txt' generated successfully.")
