@@ -9,10 +9,10 @@ from utils.transactionUtils import validate_transaction
 def main():
     src_dir = os.path.dirname(__file__)
 
-# Navigate two directories up to reach the parent directory of myenv
+    # Navigate two directories up to reach the parent directory of myenv
     parent_dir = os.path.dirname(os.path.dirname(src_dir))
 
-# Construct the path to the mempool directory
+    # Construct the path to the mempool directory
     mempool_path = os.path.join(parent_dir, "mempool")
     valid_transactions = []
 
@@ -40,9 +40,9 @@ def main():
 
     # Get the block header from the mined block
     block_header = mined_block["block_header"]
-    print('block_header', block_header.hex())
+    print("block_header", block_header.hex())
     nounce = mined_block["nonce"]
-    print('nounce in main', nounce)
+    print("nounce in main", nounce)
 
     # Serialize the coinbase transaction
     # coinbase_tx = mined_block["coinbase_tx"]
@@ -50,24 +50,23 @@ def main():
 
     # Extract txids from mined block
     txids = mined_block["txids"]
-    reversed_txids = [txid[::-1] for txid in txids]
 
     # Write the block header to the output file
     # Write the block header, coinbase transaction, and transaction IDs to the output file
     output_path = os.path.join(parent_dir, "output.txt")
     with open(output_path, "w") as output_file:
-    # Write the block header
-       output_file.write(block_header.hex() + "\n")
+        # Write the block header
+        output_file.write(block_header.hex() + "\n")
 
-    # Write the serialized coinbase transaction
-       output_file.write("coinbase transaction" + "\n")
+        # Write the serialized coinbase transaction
+        output_file.write("coinbase transaction" + "\n")
 
-    # Write the transaction IDs (txids) of the transactions mined in the block
-       for txid in reversed_txids:
-           output_file.write(txid + "\n")
+        # Write the transaction IDs (txids) of the transactions mined in the block
+        for txid in txids:
+            output_file.write(txid + "\n")
+
 
 print("Output file 'output.txt' generated successfully.")
-
 
 
 # def serialize_block_header(block_header):
@@ -93,8 +92,7 @@ if __name__ == "__main__":
 # mempool_path = os.path.join(parent_dir, "mempool")
 
 
-
-# myenv 
+# myenv
 #     src_dir = os.path.dirname(__file__)
 
 # # Navigate two directories up to reach the parent directory of myenv
