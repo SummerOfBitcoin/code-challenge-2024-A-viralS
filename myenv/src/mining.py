@@ -58,11 +58,14 @@ def serialize_block(block_data):
     return "|".join(map(str, block_data))
 
 
-def calculate_merkle_root(txids):
-    if len(txids) == 0:
+def calculate_merkle_root(transactions):
+    if len(transactions) == 0:
         return ""
 
-    hashes = [hashlib.sha256(bytes.fromhex(txid)).digest() for txid in txids]
+    # Convert txids to natural byte order
+    txids = [serialize_tx(tx) for tx in transactions]
+
+    hashes = [hashlib.sha256(bytes.fromhex(tx)).digest() for tx in txids]
 
     while len(hashes) > 1:
         new_hashes = []
