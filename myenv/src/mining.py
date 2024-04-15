@@ -58,14 +58,11 @@ def serialize_block(block_data):
     return "|".join(map(str, block_data))
 
 
-def calculate_merkle_root(transactions):
-    if len(transactions) == 0:
+def calculate_merkle_root(txids):
+    if len(txids) == 0:
         return ""
 
-    # Convert txids to natural byte order
-    txids = [serialize_tx(tx)[::-1] for tx in transactions]
-
-    hashes = [hashlib.sha256(bytes.fromhex(tx)).digest() for tx in txids]
+    hashes = [hashlib.sha256(bytes.fromhex(txid)).digest() for txid in txids]
 
     while len(hashes) > 1:
         new_hashes = []
@@ -100,7 +97,7 @@ def mine_block(transactions, difficulty_target):
 
     # Format previous_block_hash and merkle_root as natural byte order
     previous_block_hash_bytes = bytes.fromhex(previous_block_hash)[::-1]
-    merkle_root_bytes = bytes.fromhex(merkle_root)
+    merkle_root_bytes = bytes.fromhex(merkle_root)[::-1]
     print("merkle_root_bytes", merkle_root_bytes)
 
     # Format timestamp, bits, and nonce as 4-byte little-endian
