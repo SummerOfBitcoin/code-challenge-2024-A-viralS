@@ -18,8 +18,9 @@ def main():
 
     # Read and validate transactions from mempool
     files = os.listdir(mempool_path)
+
     filename_to_check = (
-        "00a5be9434f4d97613391cdce760293fd142786a00952ed4edfd66dd19c5c23a.json"
+        "7de645056d100ee9d175ec61a90acc3d67812f93a3dae605a94f4db0f7c2a153.json"
     )
     exists = filename_to_check in files
 
@@ -50,7 +51,7 @@ def main():
 
     # Extract txids from mined block
     txids = mined_block["txids"]
-    reversed_txid= [txid[::-1] for txid in txids]
+    reversed_txid = [txid[::-1] for txid in txids]
     # Write the block header to the output file
     # Write the block header, coinbase transaction, and transaction IDs to the output file
     output_path = os.path.join(parent_dir, "output.txt")
@@ -63,7 +64,7 @@ def main():
 
         # Write the transaction IDs (txids) of the transactions mined in the block
         for txid in reversed_txid:
-            output_file.write(txid +"\n")
+            output_file.write(txid + "\n")
 
 
 print("Output file 'output.txt' generated successfully.")

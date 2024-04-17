@@ -1,5 +1,5 @@
 #!./code-challenge-2024-A-viralS/myenv/bin/python
-import secp256k1 
+import secp256k1
 import hashlib
 from typing import List, Dict
 import re
@@ -26,6 +26,7 @@ def validate_transaction(transaction_data: Dict) -> bool:
     )
     transaction_fee = total_input_value - total_output_value
     if transaction_fee < 0:
+        print("Transaction fee is negative")
         return False
 
     # 3. Confirm Coinbase Transaction Validation
@@ -33,26 +34,26 @@ def validate_transaction(transaction_data: Dict) -> bool:
         if input["is_coinbase"] and input["prevout"]["value"] != 0:
             return False
 
-    # 4. Verify Locktime (if present)
+    # # 4. Verify Locktime (if present)
     if "locktime" in transaction_data and transaction_data["locktime"] < 0:
         return False
 
-    # 5. Check for Negative Values
+    # # 5. Check for Negative Values
     if total_output_value < 0 or total_input_value < 0:
         return False
 
-    # 6. Validate Witness Data
-    for input in transaction_data["vin"]:
-        if not input["is_coinbase"] and (
-            "witness" not in input or not input["witness"] or len(input["witness"]) == 0
-        ):
-            return False
+    # 6. Validate Witness Data _>>>>>>>>>>>>>>> 143 
+    # for input in transaction_data["vin"]:
+    #     if not input["is_coinbase"] and (
+    #         "witness" not in input or not input["witness"] or len(input["witness"]) == 0
+    #     ):
+    #         return False
 
-    # 7. Remove Dust Transactions
-    dust_threshold = 546  # Assuming a dust threshold of 546 satoshis
-    for output in transaction_data["vout"]:
-        if output["value"] < dust_threshold:
-            return False
+    # 7. Remove Dust Transactions------->>>>>>803
+    # dust_threshold = 546  # Assuming a dust threshold of 546 satoshis
+    # for output in transaction_data["vout"]:
+    #     if output["value"] < dust_threshold:
+    #         return False
 
     # 8. Check for Double Spending
     spent_outputs = set()
@@ -62,99 +63,99 @@ def validate_transaction(transaction_data: Dict) -> bool:
             return False
         spent_outputs.add(output_hash)
 
-    # 9. Validate Script Formats
-    for output in transaction_data["vout"]:
-        scriptpubkey = output["scriptpubkey"]
-        scriptpubkey_type = output["scriptpubkey_type"]
+    # 9. Validate Script Formats------->>>>>>3149
+    # for output in transaction_data["vout"]:
+    #     scriptpubkey = output["scriptpubkey"]
+    #     scriptpubkey_type = output["scriptpubkey_type"]
 
-        if scriptpubkey_type == "p2sh":
-            # Validate P2SH script format
-            pattern = r"^OP_HASH160 ([0-9a-fA-F]{40}) OP_EQUAL$"
-            match = re.match(pattern, scriptpubkey)
-            if not match:
-                return False
+    #     if scriptpubkey_type == "p2sh":
+    #         # Validate P2SH script format
+    #         pattern = r"^OP_HASH160 ([0-9a-fA-F]{40}) OP_EQUAL$"
+    #         match = re.match(pattern, scriptpubkey)
+    #         if not match:
+    #             return False
 
-            address_hash = match.group(1)
-            address = get_address_from_hash(address_hash, "p2sh")
-            if address != output["scriptpubkey_address"]:
-                return False
+    #         address_hash = match.group(1)
+    #         address = get_address_from_hash(address_hash, "p2sh")
+    #         if address != output["scriptpubkey_address"]:
+    #             return False
 
-        elif scriptpubkey_type == "v1_p2tr":
-            # Validate P2TR script format
-            pattern = r"^OP_PUSHNUM_1 OP_PUSHBYTES_32 ([0-9a-fA-F]{64})$"
-            match = re.match(pattern, scriptpubkey)
-            if not match:
-                return False
+    #     elif scriptpubkey_type == "v1_p2tr":
+    #         # Validate P2TR script format
+    #         pattern = r"^OP_PUSHNUM_1 OP_PUSHBYTES_32 ([0-9a-fA-F]{64})$"
+    #         match = re.match(pattern, scriptpubkey)
+    #         if not match:
+    #             return False
 
-            witness_hash = match.group(1)
-            address = get_address_from_hash(witness_hash, "p2tr")
-            if address != output["scriptpubkey_address"]:
-                return False
+    #         witness_hash = match.group(1)
+    #         address = get_address_from_hash(witness_hash, "p2tr")
+    #         if address != output["scriptpubkey_address"]:
+    #             return False
 
     # 10. Extract Signatures and Perform ECDSA Verification
-    for input in transaction_data["vin"]:
-        if not input["is_coinbase"]:
-            witness = input["witness"]
-            prevout = input["prevout"]
-            scriptpubkey = prevout["scriptpubkey"]
-            value = prevout["value"]
+    # for input in transaction_data["vin"]:
+    #     if not input["is_coinbase"]:
+    #         witness = input["witness"]
+    #         prevout = input["prevout"]
+    #         scriptpubkey = prevout["scriptpubkey"]
+    #         value = prevout["value"]
 
-            if scriptpubkey.startswith("OP_DUP OP_HASH160"):
-                # P2PKH transaction
-                signature = witness[0]
-                pubkey = witness[1]
+    #         if scriptpubkey.startswith("OP_DUP OP_HASH160"):
+    #             # P2PKH transaction
+    #             signature = witness[0]
+    #             pubkey = witness[1]
 
-                # Perform ECDSA signature verification
-                if not verify_signature(signature, prevout, pubkey):
-                    return False
+    #             # Perform ECDSA signature verification
+    #             if not verify_signature(signature, prevout, pubkey):
+    #                 return False
 
-            elif scriptpubkey.startswith("OP_PUSHNUM_1 OP_PUSHBYTES_32"):
-                # P2TR transaction
-                witness_script = witness[-1]
+    #         elif scriptpubkey.startswith("OP_PUSHNUM_1 OP_PUSHBYTES_32"):
+    #             # P2TR transaction
+    #             witness_script = witness[-1]
 
-                # Perform ECDSA signature verification for witness script
-                if not verify_witness_script(witness_script, prevout, witness):
-                    return False
+    #             # Perform ECDSA signature verification for witness script
+    #             if not verify_witness_script(witness_script, prevout, witness):
+    #                 return False
 
-    # 11. Maximize Transaction Fee
-    sorted_outputs = sorted(
-        transaction_data["vout"], key=lambda x: x["value"], reverse=True
-    )
-    maximized_transaction_data = {**transaction_data, "vout": sorted_outputs}
+    # 11. Maximize Transaction Fee------>>>>2336
+    # sorted_outputs = sorted(
+    #     transaction_data["vout"], key=lambda x: x["value"], reverse=True
+    # )
+    # maximized_transaction_data = {**transaction_data, "vout": sorted_outputs}
 
-    # Original validation checks
-    # Check if the outputs are valid
-    total_output = sum(output["value"] for output in maximized_transaction_data["vout"])
-    for output in maximized_transaction_data["vout"]:
-        if not output["scriptpubkey"] or not output["value"] or output["value"] < 0:
-            return False
+    # # Original validation checks
+    # # Check if the outputs are valid
+    # total_output = sum(output["value"] for output in maximized_transaction_data["vout"])
+    # for output in maximized_transaction_data["vout"]:
+    #     if not output["scriptpubkey"] or not output["value"] or output["value"] < 0:
+    #         return False
 
-    # Check if the transaction version is valid
-    valid_version = [2]  # Add more valid versions as needed
-    if transaction_data["version"] not in valid_version:
-        return False
+    # # Check if the transaction version is valid
+    # valid_version = [2]  # Add more valid versions as needed
+    # if transaction_data["version"] not in valid_version:
+    #     return False
 
-    # Calculate the total input value
-    total_input = 0
-    for input in maximized_transaction_data["vin"]:
-        if not input["txid"] or input["vout"] is None or input["vout"] < 0:
-            return False
+    # # Calculate the total input value
+    # total_input = 0
+    # for input in maximized_transaction_data["vin"]:
+    #     if not input["txid"] or input["vout"] is None or input["vout"] < 0:
+    #         return False
 
-        # Get the value of the previous output being spent
-        prev_output = input["prevout"]
-        if not prev_output or not prev_output["value"] or prev_output["value"] < 0:
-            return False
-        total_input += prev_output["value"]
+    #     # Get the value of the previous output being spent
+    #     prev_output = input["prevout"]
+    #     if not prev_output or not prev_output["value"] or prev_output["value"] < 0:
+    #         return False
+    #     total_input += prev_output["value"]
 
-        # Check if the input is a coinbase transaction and validate accordingly
-        if input["is_coinbase"]:
-            # Perform additional validation for coinbase transactions if needed
-            pass
+    #     # Check if the input is a coinbase transaction and validate accordingly
+    #     if input["is_coinbase"]:
+    #         # Perform additional validation for coinbase transactions if needed
+    #         pass
 
-    # Check if the total output value is valid
-    # The total output value should not be greater than the total input value
-    if total_output > total_input:
-        return False
+    # # Check if the total output value is valid
+    # # The total output value should not be greater than the total input value
+    # if total_output > total_input:
+    #     return False
 
     # If all validation checks pass, return true
     return True
