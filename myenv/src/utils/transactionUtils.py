@@ -42,7 +42,7 @@ def validate_transaction(transaction_data: Dict) -> bool:
     if total_output_value < 0 or total_input_value < 0:
         return False
 
-    # 6. Validate Witness Data _>>>>>>>>>>>>>>> 143 
+    # 6. Validate Witness Data _>>>>>>>>>>>>>>> 143
     # for input in transaction_data["vin"]:
     #     if not input["is_coinbase"] and (
     #         "witness" not in input or not input["witness"] or len(input["witness"]) == 0
