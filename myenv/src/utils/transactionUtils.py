@@ -4,7 +4,6 @@ import hashlib
 from typing import List, Dict
 import re
 
-
 def validate_transaction(transaction_data: Dict) -> bool:
     # 1. Validate ScriptPubKey Address Formats
     for output in transaction_data["vout"]:
